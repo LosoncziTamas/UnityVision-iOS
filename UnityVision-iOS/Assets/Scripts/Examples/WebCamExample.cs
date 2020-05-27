@@ -59,33 +59,35 @@ namespace Examples
 			_webCamTexture.Play();
 		}
 
-#if !UNITY_EDITOR && UNITY_IOS
-	private void Update()
-	{
-		// We only classify a new image if no other vision requests are in progress
-		if (!_vision.InProgress)
+		private void Update()
 		{
-			// This is the call where we pass in the handle to the image data to be analysed
-			_vision.EvaluateBuffer(
-	
-				// This argument is always of type IntPtr, that refers the data buffer
-				buffer: _webCamTexture.GetNativeTexturePtr(), 
-	
-				// We need to tell the plugin about the nature of the underlying data.
-				// The plugin only supports CVPixelBuffer (CoreVideo) and MTLTexture (Metal).
-				// Unity's Texture and all of its derived types return MTLTextureRef
-				// when using Metal graphics API on iOS. OpenGLES 2 is not supported
-				// by the plugin. For more information refer to the official API documentation:
-				// https://docs.unity3d.com/ScriptReference/Texture.GetNativeTexturePtr.html
-				dataType: ImageDataType.MetalTexture);
+			if (Application.platform == RuntimePlatform.IPhonePlayer)
+			{
+				// We only classify a new image if no other vision requests are in progress
+				if (!_vision.InProgress)
+				{
+					// This is the call where we pass in the handle to the image data to be analysed
+					_vision.EvaluateBuffer(
+		
+						// This argument is always of type IntPtr, that refers the data buffer
+						buffer: _webCamTexture.GetNativeTexturePtr(), 
+		
+						// We need to tell the plugin about the nature of the underlying data.
+						// The plugin only supports CVPixelBuffer (CoreVideo) and MTLTexture (Metal).
+						// Unity's Texture and all of its derived types return MTLTextureRef
+						// when using Metal graphics API on iOS. OpenGLES 2 is not supported
+						// by the plugin. For more information refer to the official API documentation:
+						// https://docs.unity3d.com/ScriptReference/Texture.GetNativeTexturePtr.html
+						dataType: ImageDataType.MetalTexture);
+				}
+			}
 		}
-	}
-#endif
-	
+
 		private void Vision_OnObjectClassified(object sender, ClassificationResultArgs e)
 		{
 			// Display the top guess for the dominant object on the image
-			_text.text = e.observations.First().identifier;
+			var result = e.observations.First();
+			_text.text = $"{result.identifier} \nconfidence: {result.confidence:P2}";
 		}
 	}
 }

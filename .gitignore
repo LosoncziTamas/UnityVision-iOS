@@ -5,6 +5,9 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 
+# Generated iOS Build folder
+Build-iOS/
+
 # Visual Studio cache directory
 .vs/
 .vscode/
