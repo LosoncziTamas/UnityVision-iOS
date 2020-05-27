@@ -53,26 +53,29 @@ namespace Examples
 			_vision.OnObjectClassified -= Vision_OnObjectClassified;
 		}
 
-#if !UNITY_EDITOR && UNITY_IOS
 		private void Start()
 		{
-			var allocationResult = CVPixelBuffer.TryCreate(fromTexture: _imageToClassify, result: out _cvPixelBuffer);
-			if (allocationResult == CVReturn.Success)
+			if (Application.platform == RuntimePlatform.IPhonePlayer)
 			{
-				_vision.EvaluateBuffer(_cvPixelBuffer.GetNativePtr(), ImageDataType.CoreVideoPixelBuffer);
-			}
-			else
-			{
-				Debug.LogError("Could not allocate CVPixelBuffer (" + allocationResult + ")");
+				var allocationResult =
+					CVPixelBuffer.TryCreate(fromTexture: _imageToClassify, result: out _cvPixelBuffer);
+				if (allocationResult == CVReturn.Success)
+				{
+					_vision.EvaluateBuffer(_cvPixelBuffer.GetNativePtr(), ImageDataType.CoreVideoPixelBuffer);
+				}
+				else
+				{
+					Debug.LogError("Could not allocate CVPixelBuffer (" + allocationResult + ")");
+				}
 			}
 		}
-#endif
 
 		private void Vision_OnObjectClassified(object sender, ClassificationResultArgs e)
 		{
 			// Display the top guess for the dominant object on the image
-			_text.text = e.observations.First().identifier;
-		
+			var result = e.observations.First();
+			_text.text = $"{result.identifier} \nconfidence: {result.confidence:P2}";
+			
 			// Release the native object
 			_cvPixelBuffer.Dispose();
 		}

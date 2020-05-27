@@ -46,30 +46,35 @@ namespace Examples
 			_vision.OnObjectClassified -= Vision_OnObjectClassified;
 		}
 
-#if !UNITY_EDITOR && UNITY_IOS
         private void Update()
         {
-	        // We only classify a new image if no other vision requests are in progress
-            if (_vision.InProgress)
-            {
-                return;
-            }
-            
-	        // Instead of using ARKit's capturedImage (CVPixelBuffer), like we did in the first example,
-	        // this time we use the Y plane of the YCbCr texture Unity uses to render the current camera frame.
-            ARTextureHandles handles = UnityARSessionNativeInterface.GetARSessionNativeInterface().GetARVideoTextureHandles();
-            if (handles.textureY != System.IntPtr.Zero)
-            {
-	            // This is the call where we pass in the handle to the metal texture to be analysed
-	            _vision.EvaluateBuffer(handles.textureY, ImageDataType.MetalTexture);
-            }   
-        }
+	        if (Application.platform == RuntimePlatform.IPhonePlayer)
+	        {
+		        // We only classify a new image if no other vision requests are in progress
+		        if (_vision.InProgress)
+		        {
+			        return;
+		        }
+#if !UNITY_EDITOR && UNITY_IOS
+		        // Instead of using ARKit's capturedImage (CVPixelBuffer), like we did in the first example,
+		        // this time we use the Y plane of the YCbCr texture Unity uses to render the current camera frame.
+		        ARTextureHandles handles;
+			    handles = UnityARSessionNativeInterface.GetARSessionNativeInterface().GetARVideoTextureHandles();
+
+		        if (handles.textureY != System.IntPtr.Zero)
+		        {
+			        // This is the call where we pass in the handle to the metal texture to be analysed
+			        _vision.EvaluateBuffer(handles.textureY, ImageDataType.MetalTexture);
+		        }
 #endif
+	        }
+        }
     
 		private void Vision_OnObjectClassified(object sender, ClassificationResultArgs e)
 		{
 			// Display the top guess for the dominant object on the image
-			_text.text = e.observations.First().identifier;
+			var result = e.observations.First();
+			_text.text = $"{result.identifier} \nconfidence: {result.confidence:P2}";
 		}
 	}
 }

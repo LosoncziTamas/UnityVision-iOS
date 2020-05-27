@@ -50,29 +50,31 @@ namespace Examples
     
         private void UnityARSessionNativeInterface_ARFrameUpdatedEvent(UnityARCamera unityArCamera)
         {
-#if !UNITY_EDITOR && UNITY_IOS
-// Evaluate the current state of ARKit's pixel buffer for recognizable objects
-// We only classify a new image if no other vision requests are in progress
-        if (!_vision.InProgress)
-        {
-            // This is the call where we pass in the handle to the image data to be analysed
-            _vision.EvaluateBuffer(
-                
-                // This argument is always of type IntPtr, that refers the data buffer
-                buffer: unityArCamera.videoParams.cvPixelBufferPtr,
-                
-                // We need to tell the plugin about the nature of the underlying data.
-                // The plugin only supports CVPixelBuffer (CoreVideo) and MTLTexture (Metal).
-                // The ARKit plugin uses CoreVideo to capture images from the device camera.
-                dataType: ImageDataType.CoreVideoPixelBuffer);
-        }
-#endif
+            if (Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                // Evaluate the current state of ARKit's pixel buffer for recognizable objects
+                // We only classify a new image if no other vision requests are in progress
+                if (!_vision.InProgress)
+                {
+                    // This is the call where we pass in the handle to the image data to be analysed
+                    _vision.EvaluateBuffer(
+
+                        // This argument is always of type IntPtr, that refers the data buffer
+                        buffer: unityArCamera.videoParams.cvPixelBufferPtr,
+
+                        // We need to tell the plugin about the nature of the underlying data.
+                        // The plugin only supports CVPixelBuffer (CoreVideo) and MTLTexture (Metal).
+                        // The ARKit plugin uses CoreVideo to capture images from the device camera.
+                        dataType: ImageDataType.CoreVideoPixelBuffer);
+                }
+            }
         }
     
         private void Vision_OnObjectClassified(object sender, ClassificationResultArgs e)
         {
             // Display the top guess for the dominant object on the image
-            _text.text = e.observations.First().identifier;
+            var result = e.observations.First();
+            _text.text = $"{result.identifier} \nconfidence: {result.confidence:P2}";
         }
     }
 }
