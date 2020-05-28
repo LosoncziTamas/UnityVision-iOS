@@ -10,7 +10,7 @@ using System.Linq;
 using Possible.Vision.Managed;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR.iOS;
+// using UnityEngine.XR.iOS;
 
 namespace Examples
 {
@@ -36,7 +36,7 @@ namespace Examples
         private void OnEnable()
         {
             // Hook up to ARKit's frame update callback to be able to get a handle to the latest pixel buffer
-            UnityARSessionNativeInterface.ARFrameUpdatedEvent += UnityARSessionNativeInterface_ARFrameUpdatedEvent;
+            // UnityARSessionNativeInterface.ARFrameUpdatedEvent += UnityARSessionNativeInterface_ARFrameUpdatedEvent;
         
             // Hook up to the completion event of object classification requests
             _vision.OnObjectClassified += Vision_OnObjectClassified;
@@ -44,10 +44,10 @@ namespace Examples
 
         private void OnDisable()
         {
-            UnityARSessionNativeInterface.ARFrameUpdatedEvent -= UnityARSessionNativeInterface_ARFrameUpdatedEvent;
+            // UnityARSessionNativeInterface.ARFrameUpdatedEvent -= UnityARSessionNativeInterface_ARFrameUpdatedEvent;
             _vision.OnObjectClassified -= Vision_OnObjectClassified;
         }
-    
+/*
         private void UnityARSessionNativeInterface_ARFrameUpdatedEvent(UnityARCamera unityArCamera)
         {
             if (Application.platform == RuntimePlatform.IPhonePlayer)
@@ -69,6 +69,7 @@ namespace Examples
                 }
             }
         }
+        */
     
         private void Vision_OnObjectClassified(object sender, ClassificationResultArgs e)
         {

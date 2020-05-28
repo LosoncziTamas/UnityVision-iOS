@@ -12,7 +12,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // ReSharper disable once RedundantUsingDirective
-using UnityEngine.XR.iOS;
+// using UnityEngine.XR.iOS;
 
 namespace Examples
 {

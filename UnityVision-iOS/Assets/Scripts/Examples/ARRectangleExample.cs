@@ -9,7 +9,7 @@
 using System.Linq;
 using Possible.Vision.Managed;
 using UnityEngine;
-using UnityEngine.XR.iOS;
+// using UnityEngine.XR.iOS;
 using Utils;
 
 namespace Examples
@@ -41,16 +41,16 @@ namespace Examples
 			_vision.OnRectanglesRecognized += Vision_OnRectanglesRecognized;
 		
 			// Hook up to ARKit's frame update callback to be able to get a handle to the latest pixel buffer
-			UnityARSessionNativeInterface.ARFrameUpdatedEvent += UnityARSessionNativeInterface_ARFrameUpdatedEvent;
+			// UnityARSessionNativeInterface.ARFrameUpdatedEvent += UnityARSessionNativeInterface_ARFrameUpdatedEvent;
 		}
 
 		private void OnDisable()
 		{
 			_vision.OnRectanglesRecognized -= Vision_OnRectanglesRecognized;
-			UnityARSessionNativeInterface.ARFrameUpdatedEvent -= UnityARSessionNativeInterface_ARFrameUpdatedEvent;
+			// UnityARSessionNativeInterface.ARFrameUpdatedEvent -= UnityARSessionNativeInterface_ARFrameUpdatedEvent;
 		}
 	
-		private void UnityARSessionNativeInterface_ARFrameUpdatedEvent(UnityARCamera unityArCamera)
+	/*	private void UnityARSessionNativeInterface_ARFrameUpdatedEvent(UnityARCamera unityArCamera)
 		{
 			if (Application.platform == RuntimePlatform.IPhonePlayer)
 			{
@@ -70,7 +70,7 @@ namespace Examples
 						dataType: ImageDataType.CoreVideoPixelBuffer);
 				}
 			}
-		}
+		}*/
 	
 		private void Vision_OnRectanglesRecognized(object sender, RectanglesRecognizedArgs e)
 		{
@@ -79,7 +79,7 @@ namespace Examples
 
 			foreach (var rect in rectangles)
 			{
-				ARHitTest.CastRectangle(rect, onHit: (topLeft, topRight, bottomRight, bottomLeft) =>
+				/*ARHitTest.CastRectangle(rect, onHit: (topLeft, topRight, bottomRight, bottomLeft) =>
 				{
 					if (_marker == null)
 					{
@@ -105,7 +105,7 @@ namespace Examples
 				if (found)
 				{
 					break;
-				}
+				}*/
 			}
 
 			if (_marker != null)

@@ -10,7 +10,6 @@ using UnityEngine;
 
 namespace Utils
 {
-    [RequireComponent(typeof(MeshRenderer))]
     [RequireComponent(typeof(MeshFilter))]
     public class RectangleMarker : MonoBehaviour
     {

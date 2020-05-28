@@ -10,10 +10,12 @@ using System;
 using System.Linq;
 using Possible.Vision.Managed;
 using UnityEngine;
-using UnityEngine.XR.iOS;
+// using UnityEngine.XR.iOS;
 
 namespace Utils
 {
+    
+    #if false
     /// <summary>
     /// Convenience methods for performing hit tests with ARKit.
     /// </summary>
@@ -77,4 +79,5 @@ namespace Utils
             }
         }
     }
+#endif
 }
