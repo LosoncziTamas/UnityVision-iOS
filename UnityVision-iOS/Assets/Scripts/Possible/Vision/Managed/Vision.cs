@@ -178,7 +178,7 @@ namespace Possible.Vision.Managed
                 case ImageDataType.MetalTexture:
                     success = _vision_evaluateWithTexture(buffer) > 0;
                     break;
-                case ImageDataType.CoreVideoPixelBuffer:
+                case ImageDataType.ARFrame:
                     success = _vision_evaluateWithBuffer(buffer) > 0;
                     break;
                 default:

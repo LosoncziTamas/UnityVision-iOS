@@ -1,8 +1,5 @@
-using System;
 using System.Linq;
 using Possible.Vision.Managed;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
@@ -30,7 +27,7 @@ namespace Examples
 
         private void OnEnable()
         {
-            // Hook up to ARKit's frame update callback to be able to get a handle to the latest pixel buffer
+            // Hook up to ARFoundation's frame update callback to be able to get a handle to the latest frame
             _cameraManager.frameReceived += CameraManager_OnFrameReceived;
         
             // Hook up to the completion event of object classification requests
@@ -69,37 +66,8 @@ namespace Examples
             if (_cameraManager.subsystem.TryGetLatestFrame(cameraParams, out var frame))
             {
                 // This is the call where we pass in the handle to the image data to be analysed
-                _vision.EvaluateBuffer(frame.nativePtr, ImageDataType.CoreVideoPixelBuffer);
+                _vision.EvaluateBuffer(frame.nativePtr, ImageDataType.ARFrame);
             }
-#if false
-            if (_cameraManager.TryGetLatestImage(out var image))
-            {
-                var convParams = new XRCameraImageConversionParams()
-                {
-                    // The image is rotated counter-clockwise.
-                    inputRect = new RectInt(0, 0, image.width, image.height),
-                    outputDimensions = new Vector2Int(image.width, image.height),
-                    outputFormat = TextureFormat.RGB24,
-                    transformation = CameraImageTransformation.None
-                };
-                        
-                // Perform conversion on a newly created buffer
-                var buffer = new NativeArray<byte>(image.GetConvertedDataSize(convParams), Allocator.Temp);
-                image.Convert(convParams, new IntPtr(buffer.GetUnsafePtr()), buffer.Length);
-                image.Dispose();
-                
-                // Convert it to a texture and store it
-                if (!_cameraImageBuffer)
-                {
-                    _cameraImageBuffer = new Texture2D(convParams.outputDimensions.x,convParams.outputDimensions.y, convParams.outputFormat,false);
-                }
-                _cameraImageBuffer.LoadRawTextureData(buffer);
-                _cameraImageBuffer.Apply();
-            
-                buffer.Dispose();   
-            }
-#endif
         }
-
     }
 }

@@ -61,7 +61,7 @@ namespace Examples
 					CVPixelBuffer.TryCreate(fromTexture: _imageToClassify, result: out _cvPixelBuffer);
 				if (allocationResult == CVReturn.Success)
 				{
-					_vision.EvaluateBuffer(_cvPixelBuffer.GetNativePtr(), ImageDataType.CoreVideoPixelBuffer);
+					_vision.EvaluateBuffer(_cvPixelBuffer.GetNativePtr(), ImageDataType.ARFrame);
 				}
 				else
 				{

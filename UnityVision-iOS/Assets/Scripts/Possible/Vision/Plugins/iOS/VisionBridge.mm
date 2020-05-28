@@ -7,16 +7,15 @@
 
 #include "Vision-Swift.h"
 
-#pragma mark - C interface
-
 #import <ARKit/ARKit.h>
 
-typedef struct UnityXRNativeFrame_1
+#pragma mark - C interface
+
+typedef struct UnityXRNativeFrame
 {
     int version;
     void* framePtr;
-} UnityXRNativeFrame_1;
-
+} UnityXRNativeFrame;
 
 struct VisionClassificationType {
     
@@ -48,7 +47,7 @@ extern "C" {
         if (!buffer) return 0;
         
         // Extract captured image ref
-        UnityXRNativeFrame_1* unityXRFrame = (UnityXRNativeFrame_1 *) buffer;
+        UnityXRNativeFrame* unityXRFrame = (UnityXRNativeFrame *) buffer;
         ARFrame* frame = (__bridge ARFrame*)unityXRFrame->framePtr;
         CVPixelBufferRef pixelBuffer = frame.capturedImage;
         

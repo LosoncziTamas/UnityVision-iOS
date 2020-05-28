@@ -17,9 +17,9 @@ namespace Possible.Vision.Managed
 		MetalTexture,
 		
 		/// <summary>
-		/// Use this value if need to anlyze image data stored in a native CVPixelBuffer.
-		/// https://developer.apple.com/documentation/corevideo/cvpixelbuffer
+		/// Use this value if you need to analyze image data stored in the ARFrame
+		/// https://developer.apple.com/documentation/arkit/arframe
 		/// </summary>
-		CoreVideoPixelBuffer
+		ARFrame
 	}
 }
