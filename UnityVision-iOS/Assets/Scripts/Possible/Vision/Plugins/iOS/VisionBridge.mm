@@ -9,6 +9,15 @@
 
 #pragma mark - C interface
 
+#import <ARKit/ARKit.h>
+
+typedef struct UnityXRNativeFrame_1
+{
+    int version;
+    void* framePtr;
+} UnityXRNativeFrame_1;
+
+
 struct VisionClassificationType {
     
     float confidence;
@@ -38,8 +47,13 @@ extern "C" {
         // In case of invalid buffer ref
         if (!buffer) return 0;
         
+        // Extract captured image ref
+        UnityXRNativeFrame_1* unityXRFrame = (UnityXRNativeFrame_1 *) buffer;
+        ARFrame* frame = (__bridge ARFrame*)unityXRFrame->framePtr;
+        CVPixelBufferRef pixelBuffer = frame.capturedImage;
+        
         // Forward message to the swift api
-        return [[VisionNative shared] evaluateWithBuffer: buffer] ? 1 : 0;
+        return [[VisionNative shared] evaluateWithBuffer: pixelBuffer] ? 1 : 0;
     }
     
     int _vision_evaluateWithTexture(MTLTextureRef texture) {
