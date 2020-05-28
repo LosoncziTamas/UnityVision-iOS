@@ -10,18 +10,19 @@ using System;
 using System.Linq;
 using Possible.Vision.Managed;
 using UnityEngine;
-// using UnityEngine.XR.iOS;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
 
 namespace Utils
 {
     
-    #if false
+#if false
     /// <summary>
     /// Convenience methods for performing hit tests with ARKit.
     /// </summary>
     public static class ARHitTest
     {
-        private static bool HitTestWithResultType(ARPoint point, ARHitTestResultType resultTypes, out Matrix4x4 hitTransform)
+        private static bool HitTestWithResultType(Vector2 point, TrackableType resultTypes, out Matrix4x4 hitTransform)
         {
             var hitResults = UnityARSessionNativeInterface.GetARSessionNativeInterface().HitTest(point, resultTypes);
             if (hitResults.Any())

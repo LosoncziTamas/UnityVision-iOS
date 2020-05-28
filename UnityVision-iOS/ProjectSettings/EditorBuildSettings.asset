@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Examples/ARFoundationExample.unity
-    guid: f5c2ce1bef4ed415bad064c6af2a51c0
+    path: Assets/Examples/ARRectangleExample.unity
+    guid: a918ea22e3856451a8180ec96bf8b76f
   m_configObjects: {}

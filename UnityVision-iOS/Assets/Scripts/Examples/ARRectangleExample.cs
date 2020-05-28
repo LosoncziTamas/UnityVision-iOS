@@ -6,10 +6,12 @@
 // Copyright © 2018 POSSIBLE CEE. Released under the MIT license.
 ///////////////////////////////////////////////////////////////////////////////
 
+using System.Collections.Generic;
 using System.Linq;
 using Possible.Vision.Managed;
 using UnityEngine;
-// using UnityEngine.XR.iOS;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
 using Utils;
 
 namespace Examples
@@ -19,9 +21,12 @@ namespace Examples
 	/// </summary>
 	public class ARRectangleExample : MonoBehaviour 
 	{
+		[SerializeField] private ARCameraManager _cameraManager;
 		[SerializeField] private Vision _vision;
 		[SerializeField] private RectangleMarker _rectangleMarkerPrefab;
-	
+		[SerializeField] private Camera _arCamera;
+		[SerializeField] private ARRaycastManager _raycastManager;
+		
 		private RectangleMarker _marker;
 
 		private void Awake()
@@ -40,37 +45,90 @@ namespace Examples
 			// Hook up to the completion event of rectangle detection requests
 			_vision.OnRectanglesRecognized += Vision_OnRectanglesRecognized;
 		
-			// Hook up to ARKit's frame update callback to be able to get a handle to the latest pixel buffer
-			// UnityARSessionNativeInterface.ARFrameUpdatedEvent += UnityARSessionNativeInterface_ARFrameUpdatedEvent;
+			// Hook up to ARFoundation's frame update callback to be able to get a handle to the latest frame
+			_cameraManager.frameReceived += CameraManager_OnFrameReceived;
 		}
 
 		private void OnDisable()
 		{
 			_vision.OnRectanglesRecognized -= Vision_OnRectanglesRecognized;
-			// UnityARSessionNativeInterface.ARFrameUpdatedEvent -= UnityARSessionNativeInterface_ARFrameUpdatedEvent;
+			_cameraManager.frameReceived -= CameraManager_OnFrameReceived;
 		}
-	
-	/*	private void UnityARSessionNativeInterface_ARFrameUpdatedEvent(UnityARCamera unityArCamera)
+		
+		private void CameraManager_OnFrameReceived(ARCameraFrameEventArgs obj)
 		{
-			if (Application.platform == RuntimePlatform.IPhonePlayer)
+			if (_vision.InProgress)
 			{
-				// Evaluate the current state of ARKit's pixel buffer for recognizable objects
-				// We only classify a new image if no other vision requests are in progress
-				if (!_vision.InProgress)
-				{
-					// This is the call where we pass in the handle to the image data to be analysed
-					_vision.EvaluateBuffer(
-
-						// This argument is always of type IntPtr, that refers the data buffer
-						buffer: unityArCamera.videoParams.cvPixelBufferPtr,
-
-						// We need to tell the plugin about the nature of the underlying data.
-						// The plugin only supports CVPixelBuffer (CoreVideo) and MTLTexture (Metal).
-						// The ARKit plugin uses CoreVideo to capture images from the device camera.
-						dataType: ImageDataType.CoreVideoPixelBuffer);
-				}
+				return;
 			}
-		}*/
+
+			var cameraParams = new XRCameraParams
+			{
+				zNear = _arCamera.nearClipPlane,
+				zFar = _arCamera.farClipPlane,
+				screenWidth = Screen.width,
+				screenHeight = Screen.height,
+				screenOrientation = Screen.orientation
+			};
+
+			if (_cameraManager.subsystem.TryGetLatestFrame(cameraParams, out var frame))
+			{
+				// This is the call where we pass in the handle to the image data to be analysed
+				_vision.EvaluateBuffer(frame.nativePtr, ImageDataType.ARFrame);
+			}
+		}
+
+		class RectangleHit
+		{
+			public Vector3 topLeft;
+			public Vector3 topRight;
+			public Vector3 bottomLeft;
+			public Vector3 bottomRight;
+		}
+
+		private bool HitTestForRect(VisionRectangle rectangle, out RectangleHit result)
+		{
+			var hits = new List<ARRaycastHit>();
+			result = null;
+			
+			Vector3 topLeft;
+			if (_raycastManager.Raycast(rectangle.topLeft, hits, TrackableType.Planes))
+			{
+				topLeft = hits.First().pose.position;
+			}
+			else return false;
+
+			Vector3 topRight;
+			if (_raycastManager.Raycast(rectangle.topRight, hits, TrackableType.Planes))
+			{
+				topRight = hits.First().pose.position;
+			}
+			else return false;
+			
+			Vector3 bottomLeft;
+			if (_raycastManager.Raycast(rectangle.bottomLeft, hits, TrackableType.Planes))
+			{
+				bottomLeft = hits.First().pose.position;
+			} 
+			else return false;
+			
+			Vector3 bottomRight;
+			if (_raycastManager.Raycast(rectangle.bottomRight, hits, TrackableType.Planes))
+			{
+				bottomRight = hits.First().pose.position;
+			} 
+			else return false;
+
+			result = new RectangleHit
+			{
+				topLeft = topLeft, 
+				bottomLeft = bottomLeft, 
+				topRight = topRight, 
+				bottomRight = bottomRight
+			};
+
+			return true;
+		}
 	
 		private void Vision_OnRectanglesRecognized(object sender, RectanglesRecognizedArgs e)
 		{
@@ -79,7 +137,7 @@ namespace Examples
 
 			foreach (var rect in rectangles)
 			{
-				/*ARHitTest.CastRectangle(rect, onHit: (topLeft, topRight, bottomRight, bottomLeft) =>
+				if (HitTestForRect(rect, out var result))
 				{
 					if (_marker == null)
 					{
@@ -93,19 +151,13 @@ namespace Examples
 					}
 
 					// Assign the corners of the marker game object to the surface hit points
-					_marker.TopLeft = topLeft;
-					_marker.TopRight = topRight;
-					_marker.BottomRight = bottomRight;
-					_marker.BottomLeft = bottomLeft;
+					_marker.TopLeft = result.topLeft;
+					_marker.TopRight = result.topRight;
+					_marker.BottomRight = result.bottomRight;
+					_marker.BottomLeft = result.bottomLeft;
 
-					// Closure is synchronous
 					found = true;
-				});
-
-				if (found)
-				{
-					break;
-				}*/
+				}
 			}
 
 			if (_marker != null)
