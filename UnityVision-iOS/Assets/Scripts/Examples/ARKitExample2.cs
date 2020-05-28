@@ -55,7 +55,7 @@ namespace Examples
 		        {
 			        return;
 		        }
-#if !UNITY_EDITOR && UNITY_IOS
+#if false
 		        // Instead of using ARKit's capturedImage (CVPixelBuffer), like we did in the first example,
 		        // this time we use the Y plane of the YCbCr texture Unity uses to render the current camera frame.
 		        ARTextureHandles handles;

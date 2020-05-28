@@ -47,7 +47,7 @@ namespace Examples
             // UnityARSessionNativeInterface.ARFrameUpdatedEvent -= UnityARSessionNativeInterface_ARFrameUpdatedEvent;
             _vision.OnObjectClassified -= Vision_OnObjectClassified;
         }
-/*
+#if false
         private void UnityARSessionNativeInterface_ARFrameUpdatedEvent(UnityARCamera unityArCamera)
         {
             if (Application.platform == RuntimePlatform.IPhonePlayer)
@@ -69,7 +69,7 @@ namespace Examples
                 }
             }
         }
-        */
+#endif
     
         private void Vision_OnObjectClassified(object sender, ClassificationResultArgs e)
         {
