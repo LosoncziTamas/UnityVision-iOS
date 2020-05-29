@@ -20,6 +20,10 @@ namespace Possible.Vision.Managed
 		/// Use this value if you need to analyze image data stored in the ARFrame
 		/// https://developer.apple.com/documentation/arkit/arframe
 		/// </summary>
-		ARFrame
+		ARFrame,
+		
+		/// Use this value if need to analyze image data stored in a native CVPixelBuffer.
+		/// https://developer.apple.com/documentation/corevideo/cvpixelbuffer
+		CoreVideoPixelBuffer
 	}
 }

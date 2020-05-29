@@ -34,7 +34,10 @@ namespace Possible.Vision.Managed
         private static extern int _vision_evaluateWithBuffer(IntPtr buffer); 
     
         [DllImport("__Internal")]
-        private static extern int _vision_evaluateWithTexture(IntPtr texture); 
+        private static extern int _vision_evaluateWithTexture(IntPtr texture);    
+     
+        [DllImport("__Internal")]
+        private static extern int _vision_evaluateWithARFrame(IntPtr unityXRFrame); 
 
         [DllImport("__Internal")]
         private static extern int _vision_acquirePointBuffer([In, Out] CGPoint[] pointBuffer); 
@@ -55,6 +58,11 @@ namespace Possible.Vision.Managed
         }
 
         private static int _vision_evaluateWithBuffer(IntPtr buffer)
+        {
+            return 1;
+        }
+        
+        private static int _vision_evaluateWithARFrame(IntPtr unityXRFrame)
         {
             return 1;
         }
@@ -179,6 +187,9 @@ namespace Possible.Vision.Managed
                     success = _vision_evaluateWithTexture(buffer) > 0;
                     break;
                 case ImageDataType.ARFrame:
+                    success = _vision_evaluateWithARFrame(buffer) > 0;
+                    break;
+                case ImageDataType.CoreVideoPixelBuffer:
                     success = _vision_evaluateWithBuffer(buffer) > 0;
                     break;
                 default:

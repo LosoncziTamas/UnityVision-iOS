@@ -11,14 +11,12 @@
 
 #pragma mark - C interface
 
-typedef struct UnityXRNativeFrame
-{
+struct UnityXRNativeFrame {
     int version;
     void* framePtr;
-} UnityXRNativeFrame;
+};
 
 struct VisionClassificationType {
-    
     float confidence;
     char* identifier;
 };
@@ -42,19 +40,25 @@ extern "C" {
     }
     
     int _vision_evaluateWithBuffer(CVPixelBufferRef buffer) {
-        
         // In case of invalid buffer ref
         if (!buffer) return 0;
+                
+        // Forward message to the swift api
+        return [[VisionNative shared] evaluateWithBuffer: buffer] ? 1 : 0;
+    }
+    
+    int _vision_evaluateWithARFrame(UnityXRNativeFrame* unityXRFrame) {
+        // In case of invalid buffer ref
+        if (!unityXRFrame) return 0;
         
         // Extract captured image ref
-        UnityXRNativeFrame* unityXRFrame = (UnityXRNativeFrame *) buffer;
         ARFrame* frame = (__bridge ARFrame*)unityXRFrame->framePtr;
         CVPixelBufferRef pixelBuffer = frame.capturedImage;
         
         // Forward message to the swift api
         return [[VisionNative shared] evaluateWithBuffer: pixelBuffer] ? 1 : 0;
     }
-    
+
     int _vision_evaluateWithTexture(MTLTextureRef texture) {
         
         // In case of invalid texture ref
