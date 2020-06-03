@@ -293,7 +293,7 @@ namespace Possible.Vision.Managed
             {
                 for (var i = 0; i < coordinates.Count; i++)
                 {
-                    // coordinates[i] = Vector2.one - coordinates[i];
+                    coordinates[i] = Vector2.one - coordinates[i];
                 }
             }
             else if (Screen.orientation != ScreenOrientation.LandscapeLeft)

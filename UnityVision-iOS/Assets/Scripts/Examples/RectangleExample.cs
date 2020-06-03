@@ -14,6 +14,9 @@ namespace Examples
         [SerializeField] private RawImage _image;
         [SerializeField] private Texture2D _imageToRecognize;
         
+        // We use Unity's WebCamTexture API to access image data from device camera.
+        private WebCamTexture _webCamTexture;
+        
         // Reference to the managed CVPixelBuffer wrapper object.
         // The actual object will be allocated using the appropriate factory method.
         private CVPixelBuffer _cvPixelBuffer;
@@ -25,8 +28,10 @@ namespace Examples
 
         private void Awake()
         {
+            _webCamTexture = new WebCamTexture(requestedWidth: 1280, requestedHeight: 720);
+            
             // Display the target image
-            _image.texture = _imageToRecognize;
+            _image.texture = _webCamTexture;
 		
             // We need to tell the Vision plugin what kind of requests do we want it to perform.
             // This call not only prepares the Vision instance for the specified image requests,
@@ -52,6 +57,7 @@ namespace Examples
         {
             if (Application.platform == RuntimePlatform.IPhonePlayer)
             {
+#if false
                 var allocationResult = CVPixelBuffer.TryCreate(fromTexture: _imageToRecognize, result: out _cvPixelBuffer);
                 if (allocationResult == CVReturn.Success)
                 {
@@ -61,13 +67,31 @@ namespace Examples
                 {
                     Debug.LogError("Could not allocate CVPixelBuffer (" + allocationResult + ")");
                 }
+#endif
+                _webCamTexture.Play();
             }
         }
 
-        private Vector2 FlipVertically(Vector2 vec)
+        private void Update()
         {
-            // ScreenDimensions.y - 
-            return new Vector2(vec.x, vec.y);
+            if (Application.platform != RuntimePlatform.IPhonePlayer) return;
+            // We only classify a new image if no other vision requests are in progress
+            if (!_vision.InProgress)
+            {
+                // This is the call where we pass in the handle to the image data to be analysed
+                _vision.EvaluateBuffer(
+		
+                    // This argument is always of type IntPtr, that refers the data buffer
+                    buffer: _webCamTexture.GetNativeTexturePtr(), 
+		
+                    // We need to tell the plugin about the nature of the underlying data.
+                    // The plugin only supports CVPixelBuffer (CoreVideo) and MTLTexture (Metal).
+                    // Unity's Texture and all of its derived types return MTLTextureRef
+                    // when using Metal graphics API on iOS. OpenGLES 2 is not supported
+                    // by the plugin. For more information refer to the official API documentation:
+                    // https://docs.unity3d.com/ScriptReference/Texture.GetNativeTexturePtr.html
+                    dataType: ImageDataType.MetalTexture);
+            }
         }
 
         private void OnGUI()
@@ -75,21 +99,23 @@ namespace Examples
             GUI.color = Color.blue;
             
             // In GUI space the Y starts from the top, that's why there is no need for flipping the coordinates in this case.
-            GUI.Label(new Rect(FlipVertically(_topLeft), new Vector2(100, 100)), "top left");
-            GUI.Label(new Rect(FlipVertically(_topRight), new Vector2(100, 100)), "top right");
-            GUI.Label(new Rect(FlipVertically(_bottomLeft), new Vector2(100, 100)), "bottom left");
-            GUI.Label(new Rect(FlipVertically(_bottomRight), new Vector2(100, 100)), "bottom right");
+
+            GUI.Label(new Rect(_topLeft, new Vector2(100, 100)), "top left");
+            GUI.Label(new Rect(_topRight, new Vector2(100, 100)), "top right");
+            GUI.Label(new Rect(_bottomLeft, new Vector2(100, 100)), "bottom left");
+            GUI.Label(new Rect(_bottomRight, new Vector2(100, 100)), "bottom right");
+
         }
 
         private void Vision_OnRectanglesRecognized(object sender, RectanglesRecognizedArgs e)
         {
             var result = e.rectangles.First();
             
-            // TODO: figure out why coordinates are so inconsistent
-            _topLeft = Vector2.Scale(result.bottomLeft, ScreenDimensions);
-            _topRight = Vector2.Scale(result.bottomRight, ScreenDimensions);
-            _bottomLeft = Vector2.Scale(result.topLeft, ScreenDimensions);
-            _bottomRight = Vector2.Scale(result.topRight, ScreenDimensions);
+            // The coordinates are in GUI space with Y starting at the top.
+            _topLeft = Vector2.Scale(result.topRight, ScreenDimensions);
+            _topRight = Vector2.Scale(result.topLeft, ScreenDimensions);
+            _bottomLeft = Vector2.Scale(result.bottomRight, ScreenDimensions);
+            _bottomRight = Vector2.Scale(result.bottomLeft, ScreenDimensions);
         }
     }
 }
