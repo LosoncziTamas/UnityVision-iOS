@@ -78,44 +78,42 @@ namespace Examples
             // We only classify a new image if no other vision requests are in progress
             if (!_vision.InProgress)
             {
-                // This is the call where we pass in the handle to the image data to be analysed
-                _vision.EvaluateBuffer(
-		
-                    // This argument is always of type IntPtr, that refers the data buffer
-                    buffer: _webCamTexture.GetNativeTexturePtr(), 
-		
-                    // We need to tell the plugin about the nature of the underlying data.
-                    // The plugin only supports CVPixelBuffer (CoreVideo) and MTLTexture (Metal).
-                    // Unity's Texture and all of its derived types return MTLTextureRef
-                    // when using Metal graphics API on iOS. OpenGLES 2 is not supported
-                    // by the plugin. For more information refer to the official API documentation:
-                    // https://docs.unity3d.com/ScriptReference/Texture.GetNativeTexturePtr.html
-                    dataType: ImageDataType.MetalTexture);
+
+                var allocationResult =
+                    CVPixelBuffer.TryCreate(fromWebCamTexture: _webCamTexture, result: out _cvPixelBuffer);
+                if (allocationResult == CVReturn.Success)
+                {
+                    _vision.EvaluateBuffer(_cvPixelBuffer.GetNativePtr(), ImageDataType.CoreVideoPixelBuffer);
+                }
             }
+        }
+
+        private Vector2 FlipVertically(Vector2 vec)
+        {
+            return new Vector2(vec.x, vec.y);
         }
 
         private void OnGUI()
         {
             GUI.color = Color.blue;
             
-            // In GUI space the Y starts from the top, that's why there is no need for flipping the coordinates in this case.
-
-            GUI.Label(new Rect(_topLeft, new Vector2(100, 100)), "top left");
-            GUI.Label(new Rect(_topRight, new Vector2(100, 100)), "top right");
-            GUI.Label(new Rect(_bottomLeft, new Vector2(100, 100)), "bottom left");
-            GUI.Label(new Rect(_bottomRight, new Vector2(100, 100)), "bottom right");
+            // In GUI space the Y starts from the top, that's why there is a need for flipping the coordinates.
+            // TODO: positions are correct but naming is wrong
+            GUI.Label(new Rect(FlipVertically(_topLeft), new Vector2(100, 100)), "top left");
+            GUI.Label(new Rect(FlipVertically(_topRight), new Vector2(100, 100)), "top right");
+            GUI.Label(new Rect(FlipVertically(_bottomLeft), new Vector2(100, 100)), "bottom left");
+            GUI.Label(new Rect(FlipVertically(_bottomRight), new Vector2(100, 100)), "bottom right");
 
         }
 
         private void Vision_OnRectanglesRecognized(object sender, RectanglesRecognizedArgs e)
         {
             var result = e.rectangles.First();
-            
-            // The coordinates are in GUI space with Y starting at the top.
-            _topLeft = Vector2.Scale(result.topRight, ScreenDimensions);
-            _topRight = Vector2.Scale(result.topLeft, ScreenDimensions);
-            _bottomLeft = Vector2.Scale(result.bottomRight, ScreenDimensions);
-            _bottomRight = Vector2.Scale(result.bottomLeft, ScreenDimensions);
+   
+            _topLeft = Vector2.Scale(result.topLeft, ScreenDimensions);
+            _topRight = Vector2.Scale(result.topRight, ScreenDimensions);
+            _bottomLeft = Vector2.Scale(result.bottomLeft, ScreenDimensions);
+            _bottomRight = Vector2.Scale(result.bottomRight, ScreenDimensions);
         }
     }
 }

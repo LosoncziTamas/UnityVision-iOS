@@ -92,11 +92,11 @@ namespace Examples
 		{
 			var hits = new List<ARRaycastHit>();
 			
-			// Vision rect coordinates are normalized, and they come in a reversed order.
-			var topLeft = Vector3.Scale(visionRect.bottomRight, ScreenDimensions);
-			var bottomLeft = Vector3.Scale(visionRect.topRight, ScreenDimensions);
-			var topRight = Vector3.Scale(visionRect.bottomLeft, ScreenDimensions);
-			var bottomRight = Vector3.Scale(visionRect.topLeft, ScreenDimensions);
+			// Vision rect coordinates are normalized.
+			var topLeft = Vector3.Scale(visionRect.topLeft, ScreenDimensions);
+			var bottomLeft = Vector3.Scale(visionRect.bottomLeft, ScreenDimensions);
+			var topRight = Vector3.Scale(visionRect.topRight, ScreenDimensions);
+			var bottomRight = Vector3.Scale(visionRect.bottomRight, ScreenDimensions);
 			
 			result = new RectangleHit();
 			

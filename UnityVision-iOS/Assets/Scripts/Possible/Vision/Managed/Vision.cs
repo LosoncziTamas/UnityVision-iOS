@@ -276,7 +276,6 @@ namespace Possible.Vision.Managed
                 if (length < 4) return;
 
                 var coordinates = _pointBuffer.Take(length).Select(point => (Vector2)point).ToArray();
-                AlignScreenCoordinates(coordinates);
                 
                 // Notify listeners about the resulting points of the recognized rectangles
                 OnRectanglesRecognized(this, new RectanglesRecognizedArgs(coordinates));
@@ -293,8 +292,11 @@ namespace Possible.Vision.Managed
             {
                 for (var i = 0; i < coordinates.Count; i++)
                 {
+                    // top left, top right, bottom right, bottom left
                     coordinates[i] = Vector2.one - coordinates[i];
+                    // The alignment changes affect the correct order of the corners.
                 }
+                
             }
             else if (Screen.orientation != ScreenOrientation.LandscapeLeft)
             {

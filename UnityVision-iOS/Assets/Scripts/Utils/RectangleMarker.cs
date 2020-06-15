@@ -86,22 +86,22 @@ namespace Utils
             // Top
             _sizeTexts[0].transform.position = (_topLeft + _topRight) / 2.0f + Vector3.up * 0.1f;
             _sizeTexts[0].transform.localRotation = Quaternion.Euler(90.0f, -Vector3.SignedAngle(_topRight - _topLeft, Vector3.right, Vector3.up), 0.0f);
-            _sizeTexts[0].text = (_topRight - _topLeft).magnitude * 100.0f + " cm";
+            _sizeTexts[0].text = (_topRight - _topLeft).magnitude * 100.0f + " cm top";
 
             // Bottom
             _sizeTexts[1].transform.position = (_bottomRight + _bottomLeft) / 2.0f + Vector3.up * 0.1f;
             _sizeTexts[1].transform.localRotation = Quaternion.Euler(90.0f, -Vector3.SignedAngle(_bottomRight - _bottomLeft, Vector3.right, Vector3.up), 0.0f);
-            _sizeTexts[1].text = (_bottomRight - _bottomLeft).magnitude * 100.0f + " cm";
+            _sizeTexts[1].text = (_bottomRight - _bottomLeft).magnitude * 100.0f + " cm bottom";
 
             // Left
             _sizeTexts[2].transform.position = (_bottomLeft + _topLeft) / 2.0f + Vector3.up * 0.1f;
             _sizeTexts[2].transform.localRotation = Quaternion.Euler(90.0f, -90.0f - Vector3.SignedAngle(_topLeft - _bottomLeft, Vector3.forward, Vector3.up), 0.0f);
-            _sizeTexts[2].text = (_topLeft - _bottomLeft).magnitude * 100.0f + " cm";
+            _sizeTexts[2].text = (_topLeft - _bottomLeft).magnitude * 100.0f + " cm left";
 
             // Right
             _sizeTexts[3].transform.position = (_topRight + _bottomRight) / 2.0f + Vector3.up * 0.1f;
             _sizeTexts[3].transform.localRotation = Quaternion.Euler(90.0f, -90.0f - Vector3.SignedAngle(_topRight - _bottomRight, Vector3.forward, Vector3.up), 0.0f);
-            _sizeTexts[3].text = (_topRight - _bottomRight).magnitude * 100.0f + " cm";
+            _sizeTexts[3].text = (_topRight - _bottomRight).magnitude * 100.0f + " cm right";
         }
     }
 }
