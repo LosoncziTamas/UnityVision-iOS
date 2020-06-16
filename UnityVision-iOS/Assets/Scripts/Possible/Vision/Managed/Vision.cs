@@ -292,11 +292,8 @@ namespace Possible.Vision.Managed
             {
                 for (var i = 0; i < coordinates.Count; i++)
                 {
-                    // top left, top right, bottom right, bottom left
                     coordinates[i] = Vector2.one - coordinates[i];
-                    // The alignment changes affect the correct order of the corners.
-                }
-                
+                }                
             }
             else if (Screen.orientation != ScreenOrientation.LandscapeLeft)
             {

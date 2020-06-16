@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Possible.Vision.Managed;
 using Possible.Vision.Managed.CoreVideo;
@@ -21,9 +22,9 @@ namespace Examples
         // The actual object will be allocated using the appropriate factory method.
         private CVPixelBuffer _cvPixelBuffer;
 
-        private Vector2 _topLeft;
-        private Vector2 _bottomLeft;
         private Vector2 _topRight;
+        private Vector2 _bottomLeft;
+        private Vector2 _topLeft;
         private Vector2 _bottomRight;
 
         private void Awake()
@@ -57,17 +58,6 @@ namespace Examples
         {
             if (Application.platform == RuntimePlatform.IPhonePlayer)
             {
-#if false
-                var allocationResult = CVPixelBuffer.TryCreate(fromTexture: _imageToRecognize, result: out _cvPixelBuffer);
-                if (allocationResult == CVReturn.Success)
-                {
-                    _vision.EvaluateBuffer(_cvPixelBuffer.GetNativePtr(), ImageDataType.CoreVideoPixelBuffer);
-                }
-                else
-                {
-                    Debug.LogError("Could not allocate CVPixelBuffer (" + allocationResult + ")");
-                }
-#endif
                 _webCamTexture.Play();
             }
         }
@@ -88,32 +78,51 @@ namespace Examples
             }
         }
 
-        private Vector2 FlipVertically(Vector2 vec)
-        {
-            return new Vector2(vec.x, vec.y);
-        }
-
         private void OnGUI()
         {
             GUI.color = Color.blue;
             
-            // In GUI space the Y starts from the top, that's why there is a need for flipping the coordinates.
-            // TODO: positions are correct but naming is wrong
-            GUI.Label(new Rect(FlipVertically(_topLeft), new Vector2(100, 100)), "top left");
-            GUI.Label(new Rect(FlipVertically(_topRight), new Vector2(100, 100)), "top right");
-            GUI.Label(new Rect(FlipVertically(_bottomLeft), new Vector2(100, 100)), "bottom left");
-            GUI.Label(new Rect(FlipVertically(_bottomRight), new Vector2(100, 100)), "bottom right");
-
+            GUI.Label(new Rect(_topRight, new Vector2(100, 100)), $"Top Right: {_topRight.x}, {_topRight.y}");
+            GUI.Label(new Rect(_topLeft, new Vector2(100, 100)), $"Top Left: {_topLeft.x}, {_topLeft.y}");
+            GUI.Label(new Rect(_bottomLeft, new Vector2(100, 100)), $"Bottom Left: {_bottomLeft.x}, {_bottomLeft.y}");
+            GUI.Label(new Rect(_bottomRight, new Vector2(100, 100)), $"Bottom Right: {_bottomRight.x}, {_bottomRight.y}");
         }
 
         private void Vision_OnRectanglesRecognized(object sender, RectanglesRecognizedArgs e)
         {
-            var result = e.rectangles.First();
-   
-            _topLeft = Vector2.Scale(result.topLeft, ScreenDimensions);
-            _topRight = Vector2.Scale(result.topRight, ScreenDimensions);
-            _bottomLeft = Vector2.Scale(result.bottomLeft, ScreenDimensions);
-            _bottomRight = Vector2.Scale(result.bottomRight, ScreenDimensions);
+            var rect = MapToRectangles(e.points).OrderByDescending(r => r.area).First();
+            for (var i = 0; i < e.points.Count; i++)
+            {
+                e.points[i] = Vector2.one - e.points[i];
+            }
+            
+            _topRight = rect.topRight;
+            _topLeft = rect.topLeft;
+            _bottomLeft = rect.bottomLeft;
+            _bottomRight = rect.bottomRight;
+        }
+
+        private List<VisionRectangle> MapToRectangles(IList<Vector2> points)
+        {
+            var result = new List<VisionRectangle>();
+            var rectCount = points.Count / 4;
+           
+            // Transform the result to GUI coordinates
+            for (var i = 0; i < rectCount; i += 4)
+            {
+                for (var rectCornerIdx = 0; rectCornerIdx < 4; rectCornerIdx++)
+                {
+                    points[rectCornerIdx] = Vector2.one - points[rectCornerIdx];
+                }
+                result.Add(new VisionRectangle(
+                    topRight: Vector2.Scale(points[0], ScreenDimensions),
+                    topLeft: Vector2.Scale(points[1], ScreenDimensions),
+                    bottomLeft: Vector2.Scale(points[2], ScreenDimensions),
+                    bottomRight: Vector2.Scale(points[3], ScreenDimensions)
+                ));
+            }
+            
+            return result;
         }
     }
 }

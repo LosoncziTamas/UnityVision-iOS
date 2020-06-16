@@ -26,6 +26,21 @@ namespace Possible.Vision.Managed
             this.observations = observations;
         }
     }
+
+    public class RectanglesRecognizedArgs : EventArgs
+    {
+        /// <summary>
+        /// Directly returned points for the recognized rectangle.
+        /// </summary>
+        public readonly IList<Vector2> points;
+
+        public RectanglesRecognizedArgs(IList<Vector2> points)
+        {
+            this.points = points;
+        }
+    }
+
+#if false
     
     /// <summary>
     /// Carries the results of a successful rectangle detection request.
@@ -36,6 +51,7 @@ namespace Possible.Vision.Managed
         /// Rectangles with their respective normalized frame coordinates.
         /// </summary>
         public readonly VisionRectangle[] rectangles;
+        
 
         public RectanglesRecognizedArgs(IList<Vector2> points)
         {
@@ -81,4 +97,5 @@ namespace Possible.Vision.Managed
             }
         }
     }
+#endif
 }

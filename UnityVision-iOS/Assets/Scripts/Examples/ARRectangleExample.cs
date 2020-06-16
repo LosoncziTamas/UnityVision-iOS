@@ -129,6 +129,7 @@ namespace Examples
 
 		private void Vision_OnRectanglesRecognized(object sender, RectanglesRecognizedArgs e)
 		{
+#if false
 			var rectangles = e.rectangles.OrderByDescending(entry => entry.area).ToList();
 			var found = false;
 
@@ -162,6 +163,7 @@ namespace Examples
 				// Hide the marker if no rectangles were found
 				_marker.gameObject.SetActive(found);
 			}
+#endif
 		}
 	}
 }
