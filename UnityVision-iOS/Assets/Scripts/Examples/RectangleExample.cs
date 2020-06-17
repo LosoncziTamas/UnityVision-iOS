@@ -82,6 +82,8 @@ namespace Examples
         {
             GUI.color = Color.blue;
             
+            GUILayout.Label("Orientation: " + Screen.orientation);
+            
             GUI.Label(new Rect(_topRight, new Vector2(100, 100)), $"Top Right: {_topRight.x}, {_topRight.y}");
             GUI.Label(new Rect(_topLeft, new Vector2(100, 100)), $"Top Left: {_topLeft.x}, {_topLeft.y}");
             GUI.Label(new Rect(_bottomLeft, new Vector2(100, 100)), $"Bottom Left: {_bottomLeft.x}, {_bottomLeft.y}");
@@ -91,10 +93,6 @@ namespace Examples
         private void Vision_OnRectanglesRecognized(object sender, RectanglesRecognizedArgs e)
         {
             var rect = MapToRectangles(e.points).OrderByDescending(r => r.area).First();
-            for (var i = 0; i < e.points.Count; i++)
-            {
-                e.points[i] = Vector2.one - e.points[i];
-            }
             
             _topRight = rect.topRight;
             _topLeft = rect.topLeft;
@@ -108,17 +106,17 @@ namespace Examples
             var rectCount = points.Count / 4;
            
             // Transform the result to GUI coordinates
+            for (var i = 0; i < points.Count; i++)
+            {
+                points[i] = Vector2.one - points[i];
+            }
             for (var i = 0; i < rectCount; i += 4)
             {
-                for (var rectCornerIdx = 0; rectCornerIdx < 4; rectCornerIdx++)
-                {
-                    points[rectCornerIdx] = Vector2.one - points[rectCornerIdx];
-                }
                 result.Add(new VisionRectangle(
-                    topRight: Vector2.Scale(points[0], ScreenDimensions),
-                    topLeft: Vector2.Scale(points[1], ScreenDimensions),
-                    bottomLeft: Vector2.Scale(points[2], ScreenDimensions),
-                    bottomRight: Vector2.Scale(points[3], ScreenDimensions)
+                    topRight: Vector2.Scale(points[i + 0], ScreenDimensions),
+                    topLeft: Vector2.Scale(points[i + 1], ScreenDimensions),
+                    bottomLeft: Vector2.Scale(points[i + 2], ScreenDimensions),
+                    bottomRight: Vector2.Scale(points[i + 3], ScreenDimensions)
                 ));
             }
             

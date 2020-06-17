@@ -92,33 +92,27 @@ namespace Examples
 		{
 			var hits = new List<ARRaycastHit>();
 			
-			// Vision rect coordinates are normalized.
-			var topLeft = Vector3.Scale(visionRect.topLeft, ScreenDimensions);
-			var bottomLeft = Vector3.Scale(visionRect.bottomLeft, ScreenDimensions);
-			var topRight = Vector3.Scale(visionRect.topRight, ScreenDimensions);
-			var bottomRight = Vector3.Scale(visionRect.bottomRight, ScreenDimensions);
-			
 			result = new RectangleHit();
 			
-			if (_raycastManager.Raycast(topLeft, hits, TrackableType.Planes))
+			if (_raycastManager.Raycast(visionRect.topLeft, hits, TrackableType.Planes))
 			{
 				result.topLeft = hits.First().pose.position;
 			}
 			else return false;
 
-			if (_raycastManager.Raycast(topRight, hits, TrackableType.Planes))
+			if (_raycastManager.Raycast(visionRect.topRight, hits, TrackableType.Planes))
 			{
 				result.topRight = hits.First().pose.position;
 			}
 			else return false;
 			
-			if (_raycastManager.Raycast(bottomLeft, hits, TrackableType.Planes))
+			if (_raycastManager.Raycast(visionRect.bottomLeft, hits, TrackableType.Planes))
 			{
 				result.bottomLeft = hits.First().pose.position;
 			} 
 			else return false;
 			
-			if (_raycastManager.Raycast(bottomRight, hits, TrackableType.Planes))
+			if (_raycastManager.Raycast(visionRect.bottomRight, hits, TrackableType.Planes))
 			{
 				result.bottomRight = hits.First().pose.position;
 			} 
@@ -127,10 +121,34 @@ namespace Examples
 			return true;
 		}
 
+		private void OnGUI()
+		{
+			GUILayout.Label("Orientation: " + Screen.orientation);
+		}
+
 		private void Vision_OnRectanglesRecognized(object sender, RectanglesRecognizedArgs e)
 		{
-#if false
-			var rectangles = e.rectangles.OrderByDescending(entry => entry.area).ToList();
+			var result = new List<VisionRectangle>();
+			var points = e.points;
+			var rectCount = e.points.Count / 4;
+			
+			for (var i = 0; i < e.points.Count; ++i)
+			{
+				points[i] = Vector2.one - points[i];
+			}
+			
+			for (var i = 0; i < rectCount; i += 4)
+			{
+				//only for landscape right orientation
+				result.Add(new VisionRectangle(
+					topLeft: Vector2.Scale(points[i + 2], ScreenDimensions),
+					topRight: Vector2.Scale(points[i + 3], ScreenDimensions),
+					bottomRight: Vector2.Scale(points[i + 0], ScreenDimensions),
+					bottomLeft: Vector2.Scale(points[i + 1], ScreenDimensions)
+				));
+			}
+			
+			var rectangles = result.OrderByDescending(entry => entry.area).ToList();
 			var found = false;
 
 			foreach (var rect in rectangles)
@@ -163,7 +181,6 @@ namespace Examples
 				// Hide the marker if no rectangles were found
 				_marker.gameObject.SetActive(found);
 			}
-#endif
 		}
 	}
 }
